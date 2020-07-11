@@ -16,7 +16,9 @@
       "@shared": ["src/shared"],
       "@server": ["src/server"],
       "@helpers": ["src/helpers"],
-      "@routes": ["src/routes"]
+      "@routes": ["src/routes"],
+      "@models": ["src/models"],
+      "@typings": ["src/typings"]
     },
     "types": ["node"],
     "typeRoots": ["node_modules/@types"]
