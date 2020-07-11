@@ -1,0 +1,5 @@
+{
+  "watch": ["tests"],
+  "ext": "test.ts",
+  "exec": "ts-node -r tsconfig-paths/register ./jest --coverage"
+}

@@ -1,0 +1,45 @@
+{
+  "name": "covid-hexaland-api",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node ./util/build.js",
+    "lint": "tslint --project \"tsconfig.json\"",
+    "start": "yarn build && node -r module-alias/register ./dist",
+    "start:dev": "nodemon --config nodemon.json",
+    "test": "nodemon --config nodemon.test.json"
+  },
+  "_moduleAliases": {
+    "@server": "dist/server",
+    "@shared": "dist/shared",
+    "@helpers": "dist/helpers",
+    "@routes": "dist/routes"
+  },
+  "dependencies": {
+    "command-line-args": "^5.1.1",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "http-status-codes": "^1.4.0",
+    "module-alias": "^2.2.2",
+    "morgan": "^1.10.0",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/command-line-args": "^5.0.0",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express": "^4.17.7",
+    "@types/jest": "^26.0.4",
+    "@types/morgan": "^1.9.1",
+    "@types/node": "^14.0.22",
+    "@types/supertest": "^2.0.10",
+    "fs-extra": "^9.0.1",
+    "jest": "^26.1.0",
+    "nodemon": "^2.0.4",
+    "supertest": "^4.0.2",
+    "ts-jest": "^26.1.1",
+    "ts-node": "^8.10.2",
+    "tsconfig-paths": "^3.9.0",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.6"
+  }
+}
