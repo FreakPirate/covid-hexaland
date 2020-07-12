@@ -1,6 +1,12 @@
 {
   "name": "covid-hexaland-api",
   "version": "1.0.0",
+  "licenses": [
+    {
+      "type": "GNU General Public License v3.0",
+      "url": "https://github.com/FreakPirate/covid-hexaland/raw/master/LICENSE"
+    }
+  ],
   "scripts": {
     "build": "node ./util/build.js",
     "lint": "tslint --project \"tsconfig.json\"",
