@@ -5,4 +5,4 @@ Hexaland is a fictitious country affected by COVID-19. Their government has divi
 Allow governments to keep tabs on growth of connected covid hotspots in a cluster
 
 ## API
-[API](https://github.com/FreakPirate/covid-hexaland/raw/master/api/README.MD) application written in Javascript (Express + Typescript).
+[API](https://github.com/FreakPirate/covid-hexaland/blob/master/api/README.MD) application written in Javascript (Express + Typescript).
