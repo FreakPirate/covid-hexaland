@@ -18,11 +18,11 @@
   "_moduleAliases": {
     "@server": "dist/server",
     "@shared": "dist/shared",
-    "@helpers": "dist/helpers",
+    "@constants": "dist/constants",
     "@routes": "dist/routes",
-    "@models": "src/models",
-    "@typings": "src/typings",
-    "@validations": "src/validations"
+    "@models": "dist/models",
+    "@typings": "dist/typings",
+    "@validations": "dist/validations"
   },
   "dependencies": {
     "command-line-args": "^5.1.1",
