@@ -1,4 +1,4 @@
-type TNeighbor = string | null;
+export type TNeighbor = string | null;
 
 export type TNeighbors = [
   TNeighbor,
@@ -11,4 +11,18 @@ export type TNeighbors = [
 
 export interface ICluster {
   [key: string]: TNeighbors;
+}
+
+export interface IHexagonInput {
+  name: string;
+  neighbor: string;
+  border: number;
+}
+
+export interface IPotentialNeighbor {
+  newHexagon: string;
+  currentNeighbor: string;
+  newBorder: number;
+  potentialNeighbor: string;
+  potentialNeighborBorder: number;
 }

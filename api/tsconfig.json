@@ -15,10 +15,11 @@
     "paths": {
       "@shared": ["src/shared"],
       "@server": ["src/server"],
-      "@helpers": ["src/helpers"],
+      "@constants": ["src/constants"],
       "@routes": ["src/routes"],
       "@models": ["src/models"],
-      "@typings": ["src/typings"]
+      "@typings": ["src/typings"],
+      "@validations": ["src/validations"]
     },
     "types": ["node"],
     "typeRoots": ["node_modules/@types"]

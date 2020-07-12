@@ -6,6 +6,7 @@
     "lint": "tslint --project \"tsconfig.json\"",
     "start": "yarn build && node -r module-alias/register ./dist",
     "start:dev": "nodemon --config nodemon.json",
+    "start:dev:debug": "nodemon --config nodemon.debug.json",
     "test": "nodemon --config nodemon.test.json"
   },
   "_moduleAliases": {
@@ -14,13 +15,15 @@
     "@helpers": "dist/helpers",
     "@routes": "dist/routes",
     "@models": "src/models",
-    "@typings": "src/typings"
+    "@typings": "src/typings",
+    "@validations": "src/validations"
   },
   "dependencies": {
     "command-line-args": "^5.1.1",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "fastest-validator": "^1.5.1",
     "http-status-codes": "^1.4.0",
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",

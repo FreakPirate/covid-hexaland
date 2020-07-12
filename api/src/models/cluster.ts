@@ -1,12 +1,18 @@
-import { ICluster } from "@typings";
+import { ICluster, IHexagonInput, IPotentialNeighbor } from "@typings";
+import {
+  getNewNeighbors,
+  getOppositeBorder,
+  insertNeighborsInQueue,
+  getNewBorders,
+} from "@shared";
 
-export default class Cluster {
+export class Cluster {
   private static instance: Cluster;
   private cluster!: ICluster;
 
   private constructor() {
     this.cluster = {
-      ax: [null, null, null, null, null, null],
+      ax: getNewNeighbors(),
     };
   }
 
@@ -24,5 +30,54 @@ export default class Cluster {
 
   public query = (name: string) => {
     return this.cluster[name];
+  };
+
+  public add = (hexagonData: IHexagonInput) => {
+    if (this.cluster[hexagonData.name]) {
+      return "hexagon already exist";
+    }
+
+    if (!this.cluster[hexagonData.neighbor]) {
+      return "invalid neighbor";
+    }
+
+    if (this.cluster[hexagonData.neighbor][hexagonData.border]) {
+      return "border is taken";
+    }
+
+    const traversedHexagons = [hexagonData.neighbor];
+    this.cluster[hexagonData.name] = getNewNeighbors();
+    this.cluster[hexagonData.name][getOppositeBorder(hexagonData.border)] =
+      hexagonData.neighbor;
+    this.cluster[hexagonData.neighbor][hexagonData.border] = hexagonData.name;
+
+    const queue: IPotentialNeighbor[] = insertNeighborsInQueue(
+      [],
+      this.cluster,
+      hexagonData,
+      traversedHexagons
+    );
+
+    while (queue.length !== 0) {
+      const data = queue.shift()!;
+      const [border1, border2] = getNewBorders(
+        data.potentialNeighborBorder,
+        data.newBorder
+      );
+      this.cluster[data.potentialNeighbor][border1] = data.newHexagon;
+      this.cluster[data.newHexagon][border2] = data.potentialNeighbor;
+
+      insertNeighborsInQueue(
+        queue,
+        this.cluster,
+        {
+          name: data.newHexagon,
+          neighbor: data.potentialNeighbor,
+          border: border1,
+        },
+        traversedHexagons
+      );
+    }
+    return null;
   };
 }

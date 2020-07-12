@@ -1,11 +1,10 @@
 import { Router, Request, Response } from "express";
-import Cluster from "src/models/cluster";
-import { NOT_FOUND, OK } from "http-status-codes";
+import { Cluster } from "@models";
+import { NOT_FOUND, OK, UNPROCESSABLE_ENTITY } from "http-status-codes";
+import { hexagonValidator } from "@validations";
 
 // Init router and path
 const router = Router();
-
-// Add sub-routes
 
 router.get("/hexagon", (req: Request, res: Response) => {
   res.status(OK).json(Cluster.getInstance().queryAll());
@@ -21,6 +20,30 @@ router.get("/hexagon/:name", (req: Request, res: Response) => {
     });
   } else {
     res.status(OK).json(result);
+  }
+});
+
+router.post("/hexagon", async (req: Request, res: Response) => {
+  const hexagon = req.body;
+  const valid = await hexagonValidator(hexagon);
+
+  if (valid !== true) {
+    res.status(UNPROCESSABLE_ENTITY).json(valid);
+    return;
+  }
+
+  const error = Cluster.getInstance().add(hexagon);
+
+  if (error) {
+    res.status(UNPROCESSABLE_ENTITY).json({
+      error: true,
+      message: error,
+    });
+  } else {
+    res.status(OK).json({
+      success: true,
+      message: "hexagon added successfully!",
+    });
   }
 });
 
