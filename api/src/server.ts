@@ -6,15 +6,23 @@ import path from "path";
 import BaseRouter from "@routes";
 import { NOT_FOUND } from "http-status-codes";
 
-// Init express
+/**
+ * Initializing express
+ */
 const app = express();
 
-// Add middleware/settings/routes to express.
+/**
+ * Adding middlewares
+ */
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+/**
+ * Adding base route
+ */
 app.use("/api", BaseRouter);
 
 /**
@@ -27,5 +35,4 @@ app.get("*", (req: Request, res: Response) => {
   });
 });
 
-// Export express instance
 export default app;

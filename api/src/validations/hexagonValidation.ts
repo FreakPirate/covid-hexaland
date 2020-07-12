@@ -1,6 +1,6 @@
 import fValidator from "fastest-validator";
 
-let v = new fValidator();
+const v = new fValidator();
 
 export const hexagonSchema = {
   name: {

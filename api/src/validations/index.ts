@@ -1,1 +1,1 @@
-export * from "./hexagonValidation"
+export * from "./hexagonValidation";
