@@ -1,4 +1,3 @@
-import { logger } from "./Logger";
 import { MAX_BORDER, MIN_BORDER } from "@constants";
 import {
   TNeighbors,
@@ -7,19 +6,10 @@ import {
   IPotentialNeighbor,
 } from "@typings";
 
-export const paramMissingError =
-  "One or more of the required parameters was missing.";
-
-export const pErr = (err: Error) => {
-  if (err) {
-    logger.error(err);
-  }
-};
-
-export const getRandomInt = () => {
-  return Math.floor(Math.random() * 1_000_000_000_000);
-};
-
+/**
+ * Normalizes border to fit in range between 0 to 5
+ * @param border
+ */
 export const getNormalizedBorder = (border: number) => {
   if (border >= MAX_BORDER) {
     return border - MAX_BORDER;
@@ -32,30 +22,50 @@ export const getNormalizedBorder = (border: number) => {
   return border;
 };
 
+/**
+ * Border of new hexagon is opposite of adjacent's border
+ * @param border
+ */
 export const getOppositeBorder = (border: number) => {
   return getNormalizedBorder(border + 3);
 };
 
+/**
+ * Neighboring borders would be +1 & -1 of the given border
+ * @param border
+ */
 export const getNeighboringBorders = (border: number) => {
   return [getNormalizedBorder(border + 1), getNormalizedBorder(border - 1)];
 };
 
+/**
+ * Initializer for new hexagon
+ */
 export const getNewNeighbors = (): TNeighbors => {
   const newNeighbors: TNeighbors = [null, null, null, null, null, null];
   return newNeighbors;
 };
 
-export const insertNeighborsInQueue = (
+/**
+ * While adding a new hexagonA to hexagonX need to determine potential neighbors of hexagonA
+ * @param queue
+ * @param cluster
+ * @param hexagonData
+ * @param traversedHexagons
+ */
+export const enqueuePotentialNeighbors = (
   queue: IPotentialNeighbor[],
   cluster: ICluster,
   hexagonData: IHexagonInput,
-  traversedHexagons: string[]
+  visitedNeighbors: string[]
 ) => {
   const neighboringBorders = getNeighboringBorders(hexagonData.border);
   neighboringBorders.forEach((border) => {
     const potentialNeighbor = cluster[hexagonData.neighbor][border];
-    if (potentialNeighbor && !traversedHexagons.includes(potentialNeighbor)) {
-      traversedHexagons.push(potentialNeighbor);
+
+    // Checking if potential neighbor has already been visited
+    if (potentialNeighbor && !visitedNeighbors.includes(potentialNeighbor)) {
+      visitedNeighbors.push(potentialNeighbor);
       queue.push({
         newHexagon: hexagonData.name,
         currentNeighbor: hexagonData.neighbor,
@@ -68,6 +78,11 @@ export const insertNeighborsInQueue = (
   return queue;
 };
 
+/**
+ * To determine borders corresponding new hexagon and potential neighbor
+ * @param oldNeighborBorder
+ * @param newNeighborBorder
+ */
 export const getNewBorders = (
   oldNeighborBorder: number,
   newNeighborBorder: number
@@ -87,11 +102,24 @@ export const getNewBorders = (
   return [newBorderForNeighbor, newBorderForHexagon];
 };
 
+/**
+ * Determining if a path exists between surrounding neighbors other than the hexagon to be deleted
+ * @param cluster
+ * @param hexagonToBeDeleted
+ */
 export const pathExists = (cluster: ICluster, hexagonToBeDeleted: string) => {
+  /**
+   * APPROACH:
+   * - Delete the hexagon in question
+   * - BFS traversal starting from a random neighbor of the deleted hexagon
+   * - Check if all neighbors are reachable
+   */
   const dummyCluster: ICluster = JSON.parse(JSON.stringify(cluster));
-
   const neighbors = dummyCluster[hexagonToBeDeleted];
 
+  /**
+   * Deleting mapping of hexagon in question from neighbors
+   */
   neighbors.forEach((neighbor, border) => {
     if (neighbor === null) {
       return;
@@ -100,6 +128,7 @@ export const pathExists = (cluster: ICluster, hexagonToBeDeleted: string) => {
     dummyCluster[neighbor][getOppositeBorder(border)] = null;
   });
 
+  // deleting hexagon in question
   delete dummyCluster[hexagonToBeDeleted];
 
   const validNeighbors = neighbors
@@ -111,6 +140,9 @@ export const pathExists = (cluster: ICluster, hexagonToBeDeleted: string) => {
   const traversedHexagons = [validNeighbors[0]];
   const queue = [validNeighbors[0]];
 
+  /**
+   * BFS to create an undirected graph in form of array
+   */
   while (queue.length !== 0) {
     const hexagon = queue.shift()!;
 
@@ -125,6 +157,9 @@ export const pathExists = (cluster: ICluster, hexagonToBeDeleted: string) => {
     });
   }
 
+  /**
+   * Checking intersection between original neighbors and reachable hexagons
+   */
   return (
     JSON.stringify(
       traversedHexagons

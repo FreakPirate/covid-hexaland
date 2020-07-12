@@ -2,10 +2,19 @@ import { ICluster, IHexagonInput, IPotentialNeighbor } from "@typings";
 import {
   getNewNeighbors,
   getOppositeBorder,
-  insertNeighborsInQueue,
+  enqueuePotentialNeighbors,
   getNewBorders,
   pathExists,
 } from "@shared";
+import {
+  ERROR_MESSAGES,
+  ERROR_CODE_PATH_DOES_NOT_EXIST,
+  ERROR_CODE_HEXAGON_PRESENT,
+  ERROR_CODE_INVALID_NEIGHBOR,
+  ERROR_CODE_BORDER_TAKEN,
+  ERROR_CODE_INVALID_NAME,
+} from "@constants";
+import { sprintf } from "sprintf-js";
 
 export class Cluster {
   private static instance: Cluster;
@@ -35,30 +44,35 @@ export class Cluster {
 
   public add = (hexagonData: IHexagonInput) => {
     if (this.cluster[hexagonData.name]) {
-      return "hexagon already exist";
+      return ERROR_MESSAGES[ERROR_CODE_HEXAGON_PRESENT];
     }
 
     if (!this.cluster[hexagonData.neighbor]) {
-      return "invalid neighbor";
+      return ERROR_MESSAGES[ERROR_CODE_INVALID_NEIGHBOR];
     }
 
     if (this.cluster[hexagonData.neighbor][hexagonData.border]) {
-      return "border is taken";
+      return ERROR_MESSAGES[ERROR_CODE_BORDER_TAKEN];
     }
 
-    const traversedHexagons = [hexagonData.neighbor];
+    // add new hexagon to given neighbor and create queue to process further
+    const visitedNeighbors = [hexagonData.neighbor];
     this.cluster[hexagonData.name] = getNewNeighbors();
     this.cluster[hexagonData.name][getOppositeBorder(hexagonData.border)] =
       hexagonData.neighbor;
     this.cluster[hexagonData.neighbor][hexagonData.border] = hexagonData.name;
 
-    const queue: IPotentialNeighbor[] = insertNeighborsInQueue(
+    const queue: IPotentialNeighbor[] = enqueuePotentialNeighbors(
       [],
       this.cluster,
       hexagonData,
-      traversedHexagons
+      visitedNeighbors
     );
 
+    /**
+     * Queue processing
+     * Identifying potential neighbors by traversing neighbors of neighbors
+     */
     while (queue.length !== 0) {
       const data = queue.shift()!;
       const [border1, border2] = getNewBorders(
@@ -68,7 +82,7 @@ export class Cluster {
       this.cluster[data.potentialNeighbor][border1] = data.newHexagon;
       this.cluster[data.newHexagon][border2] = data.potentialNeighbor;
 
-      insertNeighborsInQueue(
+      enqueuePotentialNeighbors(
         queue,
         this.cluster,
         {
@@ -76,23 +90,25 @@ export class Cluster {
           neighbor: data.potentialNeighbor,
           border: border1,
         },
-        traversedHexagons
+        visitedNeighbors
       );
     }
-    return null;
   };
 
   public remove = (name: string) => {
     if (!this.cluster[name]) {
-      return "invalid hexagon name";
+      return ERROR_MESSAGES[ERROR_CODE_INVALID_NAME];
     }
 
     if (!pathExists(this.cluster, name)) {
-      return `can not remove ${name}`;
+      return sprintf(ERROR_MESSAGES[ERROR_CODE_PATH_DOES_NOT_EXIST], name);
     }
 
     const neighbors = this.cluster[name];
 
+    /**
+     * Deleting mapping of hexagon in question from neighbors
+     */
     neighbors.forEach((neighbor, border) => {
       if (neighbor === null) {
         return;
@@ -101,6 +117,7 @@ export class Cluster {
       this.cluster[neighbor][getOppositeBorder(border)] = null;
     });
 
+    // Deleting hexagon in question
     delete this.cluster[name];
   };
 }
