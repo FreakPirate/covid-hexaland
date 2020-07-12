@@ -87,6 +87,49 @@ export const getNewBorders = (
   return [newBorderForNeighbor, newBorderForHexagon];
 };
 
-export const pathExists = () => {
-  return true;
+export const pathExists = (cluster: ICluster, hexagonToBeDeleted: string) => {
+  const dummyCluster: ICluster = JSON.parse(JSON.stringify(cluster));
+
+  const neighbors = dummyCluster[hexagonToBeDeleted];
+
+  neighbors.forEach((neighbor, border) => {
+    if (neighbor === null) {
+      return;
+    }
+
+    dummyCluster[neighbor][getOppositeBorder(border)] = null;
+  });
+
+  delete dummyCluster[hexagonToBeDeleted];
+
+  const validNeighbors = neighbors
+    .filter((neighbor) => {
+      return neighbor !== null;
+    })
+    .sort();
+
+  const traversedHexagons = [validNeighbors[0]];
+  const queue = [validNeighbors[0]];
+
+  while (queue.length !== 0) {
+    const hexagon = queue.shift()!;
+
+    const dummyNeighbors = dummyCluster[hexagon];
+    dummyNeighbors.forEach((neighbor) => {
+      if (neighbor === null || traversedHexagons.includes(neighbor)) {
+        return;
+      }
+
+      traversedHexagons.push(neighbor);
+      queue.push(neighbor);
+    });
+  }
+
+  return (
+    JSON.stringify(
+      traversedHexagons
+        .filter((hexagon) => validNeighbors.includes(hexagon))
+        .sort()
+    ) === JSON.stringify(validNeighbors)
+  );
 };

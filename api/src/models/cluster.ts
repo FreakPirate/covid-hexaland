@@ -87,7 +87,7 @@ export class Cluster {
       return "invalid hexagon name";
     }
 
-    if (!pathExists()) {
+    if (!pathExists(this.cluster, name)) {
       return `can not remove ${name}`;
     }
 
