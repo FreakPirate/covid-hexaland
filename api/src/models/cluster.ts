@@ -24,6 +24,46 @@ export class Cluster {
     this.cluster = {
       ax: getNewNeighbors(),
     };
+    this.add({
+      name: "bx",
+      neighbor: "ax",
+      border: 1,
+    });
+    this.add({
+      name: "cx",
+      neighbor: "bx",
+      border: 2,
+    });
+    this.add({
+      name: "dx",
+      neighbor: "cx",
+      border: 2,
+    });
+    this.add({
+      name: "dx",
+      neighbor: "cx",
+      border: 2,
+    });
+    this.add({
+      name: "ex",
+      neighbor: "dx",
+      border: 3,
+    });
+    this.add({
+      name: "fx",
+      neighbor: "ex",
+      border: 4,
+    });
+    this.add({
+      name: "gx",
+      neighbor: "fx",
+      border: 4,
+    });
+    this.add({
+      name: "nx",
+      neighbor: "cx",
+      border: 3,
+    });
   }
 
   public static getInstance = (): Cluster => {
@@ -101,7 +141,7 @@ export class Cluster {
     }
 
     if (!pathExists(this.cluster, name)) {
-      return sprintf(ERROR_MESSAGES[ERROR_CODE_PATH_DOES_NOT_EXIST], name);
+      return ERROR_MESSAGES[ERROR_CODE_PATH_DOES_NOT_EXIST];
     }
 
     const neighbors = this.cluster[name];
