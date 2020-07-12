@@ -47,5 +47,21 @@ router.post("/hexagon", async (req: Request, res: Response) => {
   }
 });
 
+router.delete("/hexagon/:name", async (req: Request, res: Response) => {
+  const result = Cluster.getInstance().remove(req.params.name);
+
+  if (result) {
+    res.status(UNPROCESSABLE_ENTITY).json({
+      error: true,
+      message: result,
+    });
+  } else {
+    res.status(OK).json({
+      success: true,
+      message: "hexagon deleted successfully",
+    });
+  }
+});
+
 // Export the base-router
 export default router;

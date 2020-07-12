@@ -4,6 +4,7 @@ import {
   getOppositeBorder,
   insertNeighborsInQueue,
   getNewBorders,
+  pathExists,
 } from "@shared";
 
 export class Cluster {
@@ -79,5 +80,27 @@ export class Cluster {
       );
     }
     return null;
+  };
+
+  public remove = (name: string) => {
+    if (!this.cluster[name]) {
+      return "invalid hexagon name";
+    }
+
+    if (!pathExists()) {
+      return `can not remove ${name}`;
+    }
+
+    const neighbors = this.cluster[name];
+
+    neighbors.forEach((neighbor, border) => {
+      if (neighbor === null) {
+        return;
+      }
+
+      this.cluster[neighbor][getOppositeBorder(border)] = null;
+    });
+
+    delete this.cluster[name];
   };
 }

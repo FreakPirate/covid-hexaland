@@ -86,3 +86,7 @@ export const getNewBorders = (
   const newBorderForHexagon = getOppositeBorder(newBorderForNeighbor);
   return [newBorderForNeighbor, newBorderForHexagon];
 };
+
+export const pathExists = () => {
+  return true;
+};
