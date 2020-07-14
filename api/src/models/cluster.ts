@@ -1,10 +1,17 @@
-import { ICluster, IHexagonInput, IPotentialNeighbor } from "@typings";
+import {
+  ICluster,
+  IHexagonInput,
+  IPotentialNeighbor,
+  TNeighbors,
+  ICoordinateMapping,
+} from "@typings";
 import {
   getNewNeighbors,
   getOppositeBorder,
   enqueuePotentialNeighbors,
   getNewBorders,
   pathExists,
+  calculateCoordinates,
 } from "@shared";
 import {
   ERROR_MESSAGES,
@@ -14,15 +21,22 @@ import {
   ERROR_CODE_BORDER_TAKEN,
   ERROR_CODE_INVALID_NAME,
 } from "@constants";
-import { sprintf } from "sprintf-js";
 
 export class Cluster {
   private static instance: Cluster;
   private cluster!: ICluster;
+  private coordinateMapping!: ICoordinateMapping;
 
   private constructor() {
     this.cluster = {
-      ax: getNewNeighbors(),
+      ax: {
+        coordinates: [0, 0],
+        neighbors: getNewNeighbors(),
+      },
+    };
+
+    this.coordinateMapping = {
+      [[0, 0].toString()]: "ax",
     };
     this.add({
       name: "bx",
@@ -64,6 +78,18 @@ export class Cluster {
       neighbor: "cx",
       border: 3,
     });
+
+    this.add({
+      name: "hx",
+      neighbor: "gx",
+      border: 5,
+    });
+
+    this.add({
+      name: "mx",
+      neighbor: "ax",
+      border: 3,
+    });
   }
 
   public static getInstance = (): Cluster => {
@@ -74,12 +100,35 @@ export class Cluster {
     return Cluster.instance;
   };
 
-  public queryAll = (): ICluster => {
-    return this.cluster;
+  public queryAll = () => {
+    const result: {
+      [key: string]: TNeighbors;
+    } = {};
+
+    for (const [name, value] of Object.entries(this.cluster)) {
+      result[name] = value.neighbors;
+    }
+    return result;
   };
 
   public query = (name: string) => {
-    return this.cluster[name];
+    return this.cluster[name].neighbors;
+  };
+
+  private addNewNode = (name: string, neighbor: string, border: number) => {
+    const [neighborX, neighborY] = this.cluster[neighbor].coordinates;
+
+    const newCoordinates = calculateCoordinates(neighborX, neighborY, border);
+    this.cluster[name] = {
+      neighbors: getNewNeighbors(),
+      coordinates: newCoordinates,
+    };
+
+    this.cluster[name].neighbors[getOppositeBorder(border)] = neighbor;
+    this.cluster[neighbor].neighbors[border] = name;
+    this.coordinateMapping[newCoordinates.toString()] = name;
+
+    return newCoordinates;
   };
 
   public add = (hexagonData: IHexagonInput) => {
@@ -91,48 +140,38 @@ export class Cluster {
       return ERROR_MESSAGES[ERROR_CODE_INVALID_NEIGHBOR];
     }
 
-    if (this.cluster[hexagonData.neighbor][hexagonData.border]) {
+    if (this.cluster[hexagonData.neighbor].neighbors[hexagonData.border]) {
       return ERROR_MESSAGES[ERROR_CODE_BORDER_TAKEN];
     }
 
-    // add new hexagon to given neighbor and create queue to process further
-    const visitedNeighbors = [hexagonData.neighbor];
-    this.cluster[hexagonData.name] = getNewNeighbors();
-    this.cluster[hexagonData.name][getOppositeBorder(hexagonData.border)] =
-      hexagonData.neighbor;
-    this.cluster[hexagonData.neighbor][hexagonData.border] = hexagonData.name;
-
-    const queue: IPotentialNeighbor[] = enqueuePotentialNeighbors(
-      [],
-      this.cluster,
-      hexagonData,
-      visitedNeighbors
+    // add new hexagon to given neighbor and in coordinate mapping
+    const newCoordinates = this.addNewNode(
+      hexagonData.name,
+      hexagonData.neighbor,
+      hexagonData.border
     );
 
-    /**
-     * Queue processing
-     * Identifying potential neighbors by traversing neighbors of neighbors
-     */
-    while (queue.length !== 0) {
-      const data = queue.shift()!;
-      const [border1, border2] = getNewBorders(
-        data.potentialNeighborBorder,
-        data.newBorder
-      );
-      this.cluster[data.potentialNeighbor][border1] = data.newHexagon;
-      this.cluster[data.newHexagon][border2] = data.potentialNeighbor;
+    // For each border of new hexagon calculate neighbor coordinate and check if that neighbor coordinate exist 
+    [...Array(6).keys()].forEach((border) => {
+      if (getOppositeBorder(border) === hexagonData.border) {
+        return;
+      }
 
-      enqueuePotentialNeighbors(
-        queue,
-        this.cluster,
-        {
-          name: data.newHexagon,
-          neighbor: data.potentialNeighbor,
-          border: border1,
-        },
-        visitedNeighbors
+      const neighborCoordinates = calculateCoordinates(
+        newCoordinates[0],
+        newCoordinates[1],
+        border
       );
-    }
+
+      if (this.coordinateMapping[neighborCoordinates.toString()]) {
+        const potentialNeighbor = this.coordinateMapping[
+          neighborCoordinates.toString()
+        ];
+        this.cluster[hexagonData.name].neighbors[border] = potentialNeighbor;
+        this.cluster[potentialNeighbor].neighbors[getOppositeBorder(border)] =
+          hexagonData.name;
+      }
+    });
   };
 
   public remove = (name: string) => {
@@ -144,7 +183,7 @@ export class Cluster {
       return ERROR_MESSAGES[ERROR_CODE_PATH_DOES_NOT_EXIST];
     }
 
-    const neighbors = this.cluster[name];
+    const neighbors = this.cluster[name].neighbors;
 
     /**
      * Deleting mapping of hexagon in question from neighbors
@@ -154,7 +193,7 @@ export class Cluster {
         return;
       }
 
-      this.cluster[neighbor][getOppositeBorder(border)] = null;
+      this.cluster[neighbor].neighbors[getOppositeBorder(border)] = null;
     });
 
     // Deleting hexagon in question

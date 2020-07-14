@@ -4,6 +4,7 @@ import {
   ICluster,
   IHexagonInput,
   IPotentialNeighbor,
+  TCoordinate,
 } from "@typings";
 
 /**
@@ -61,7 +62,7 @@ export const enqueuePotentialNeighbors = (
 ) => {
   const neighboringBorders = getNeighboringBorders(hexagonData.border);
   neighboringBorders.forEach((border) => {
-    const potentialNeighbor = cluster[hexagonData.neighbor][border];
+    const potentialNeighbor = cluster[hexagonData.neighbor].neighbors[border];
 
     // Checking if potential neighbor has already been visited
     if (potentialNeighbor && !visitedNeighbors.includes(potentialNeighbor)) {
@@ -115,7 +116,7 @@ export const pathExists = (cluster: ICluster, hexagonToBeDeleted: string) => {
    * - Check if all neighbors are reachable
    */
   const dummyCluster: ICluster = JSON.parse(JSON.stringify(cluster));
-  const neighbors = dummyCluster[hexagonToBeDeleted];
+  const neighbors = dummyCluster[hexagonToBeDeleted].neighbors;
 
   /**
    * Deleting mapping of hexagon in question from neighbors
@@ -125,7 +126,7 @@ export const pathExists = (cluster: ICluster, hexagonToBeDeleted: string) => {
       return;
     }
 
-    dummyCluster[neighbor][getOppositeBorder(border)] = null;
+    dummyCluster[neighbor].neighbors[getOppositeBorder(border)] = null;
   });
 
   // deleting hexagon in question
@@ -146,7 +147,7 @@ export const pathExists = (cluster: ICluster, hexagonToBeDeleted: string) => {
   while (queue.length !== 0) {
     const hexagon = queue.shift()!;
 
-    const dummyNeighbors = dummyCluster[hexagon];
+    const dummyNeighbors = dummyCluster[hexagon].neighbors;
     dummyNeighbors.forEach((neighbor) => {
       if (neighbor === null || traversedHexagons.includes(neighbor)) {
         return;
@@ -167,4 +168,27 @@ export const pathExists = (cluster: ICluster, hexagonToBeDeleted: string) => {
         .sort()
     ) === JSON.stringify(validNeighbors)
   );
+};
+
+export const calculateCoordinates = (
+  x: number,
+  y: number,
+  border: number
+): TCoordinate => {
+  switch (border) {
+    case 0:
+      return [x, y - 1];
+    case 1:
+      return [x + 1, y - 1];
+    case 2:
+      return [x + 1, y];
+    case 3:
+      return [x, y + 1];
+    case 4:
+      return [x - 1, y + 1];
+    case 5:
+      return [x - 1, y];
+    default:
+      return [x, y];
+  }
 };

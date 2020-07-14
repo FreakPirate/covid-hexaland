@@ -9,8 +9,17 @@ export type TNeighbors = [
   TNeighbor
 ];
 
+export type TCoordinate = [number, number];
+
+export interface ICoordinateMapping {
+  [coordinate: string]: string;
+}
+
 export interface ICluster {
-  [key: string]: TNeighbors;
+  [key: string]: {
+    neighbors: TNeighbors;
+    coordinates: TCoordinate;
+  };
 }
 
 export interface IHexagonInput {
