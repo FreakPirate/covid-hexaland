@@ -44,7 +44,7 @@ router.post("/hexagon", async (req: Request, res: Response) => {
   const valid = await hexagonValidator(hexagon);
 
   if (valid !== true) {
-    res.status(UNPROCESSABLE_ENTITY).json(valid);
+    res.status(UNPROCESSABLE_ENTITY).json(valid[0]);
     return;
   }
 

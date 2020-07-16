@@ -43,3 +43,16 @@ svg path {
 .whiteText {
   color: white;
 }
+
+.left-align {
+  float: left;
+}
+
+.right-align {
+  float: right;
+}
+
+.App {
+  width: 90%;
+  margin: auto;
+}

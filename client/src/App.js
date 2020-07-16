@@ -4,7 +4,8 @@ import "./App.css";
 import Axios from "axios";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import {NotificationContainer, NotificationManager} from 'react-notifications';
+import Alert from "react-bootstrap/Alert";
+import Form from "react-bootstrap/Form";
 
 const getCoordinates = (x, y, idx) => {
   switch (idx) {
@@ -31,8 +32,15 @@ const getNeighborCount = (neighbors) => {
 
 function App() {
   const [show, setShow] = useState(false);
+  const [showInsertModal, setShowInsertModal] = useState(false);
   const [cluster, setCluster] = useState({});
   const [deletingHexagon, setDeletingHexagon] = useState(null);
+  const [showNotification, setShowNotification] = useState(false);
+  const [variant, setVariant] = useState("success");
+  const [notificationText, setNotificationText] = useState("");
+  const [hotspotName, setHotspotName] = useState("");
+  const [neighborHotspot, setNeighborHotspot] = useState("");
+  const [neighborBorder, setNeighborBorder] = useState(null);
 
   const handleClose = () => {
     setDeletingHexagon(null);
@@ -43,18 +51,69 @@ function App() {
     setShow(true);
   };
 
+  const onChangeHotspotName = (e) => setHotspotName(e.target.value);
+  const onChangeHotspotNeighbor = (e) => setNeighborHotspot(e.target.value);
+  const onChangeHotspotNeighborBorder = (e) =>
+    setNeighborBorder(e.target.value);
+
+  const handleCloseInsertModal = () => {
+    setHotspotName("");
+    setNeighborHotspot("");
+    setNeighborBorder(null);
+
+    setShowInsertModal(false);
+  };
+  const handleShowInsertModal = (props) => {
+    setShowInsertModal(true);
+  };
+
+  const handleAddHotspot = async (props) => {
+    try {
+      const response = await Axios.post("http://localhost:3001/api/hexagon/", {
+        name: hotspotName,
+        neighbor: neighborHotspot,
+        border: parseInt(neighborBorder, 10),
+      });
+      if (response.status === 200 && response.data) {
+        showNotificationTooltip("success", "Hotspot added successfully!");
+        loadCluster();
+        setHotspotName("");
+        setNeighborHotspot("");
+        setNeighborBorder(null);
+
+        setShowInsertModal(false);
+      }
+    } catch (error) {
+      showNotificationTooltip("danger", error.response.data.message);
+    }
+  };
+
   const handleDelete = async (props) => {
     setShow(false);
     try {
-      const response = await Axios.delete("http://localhost:3001/api/hexagon/" + deletingHexagon);
+      const response = await Axios.delete(
+        "http://localhost:3001/api/hexagon/" + deletingHexagon
+      );
       loadCluster();
       if (response.status === 200 && response.data) {
-        NotificationManager.success("Deleted successfully", "Hexaland");
+        showNotificationTooltip("success", "Hexagon deleted successfully!");
       }
     } catch (error) {
-      NotificationManager.error(error.message, "Hexaland");
+      showNotificationTooltip("danger", "Can not delete this hexagon!");
     }
-  }
+  };
+
+  const showNotificationTooltip = (type, text) => {
+    setShowNotification(true);
+    setVariant(type);
+    setNotificationText(text);
+
+    setTimeout(() => {
+      setShowNotification(false);
+      setVariant("");
+      setNotificationText("");
+    }, 2000);
+  };
 
   const loadCluster = async () => {
     try {
@@ -109,7 +168,19 @@ function App() {
 
   return (
     <div className="App">
-      <h2 className="whiteText">Covid Hexaland</h2>
+      <h2 className="whiteText left-align">Covid Hexaland</h2>
+      <Button variant="primary right-align" onClick={handleShowInsertModal}>
+        Add Hotspot
+      </Button>
+
+      <row>
+        <div className="col-md-4 offset-8">
+          <Alert variant={variant} hidden={!showNotification}>
+            {notificationText}
+          </Alert>
+        </div>
+      </row>
+
       <HexGrid width={1200} height={600} viewBox="-50 -50 100 100">
         <Layout
           size={hexagonSize}
@@ -143,7 +214,53 @@ function App() {
         </Modal.Footer>
       </Modal>
 
-      <NotificationContainer/>
+      <Modal show={showInsertModal} onHide={handleCloseInsertModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Hotspot</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formGroupEmail">
+              <Form.Label className="left-align">Hotspot Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Name of hotspot you want to add"
+                onChange={onChangeHotspotName}
+              />
+            </Form.Group>
+            <Form.Group controlId="formGroupPassword">
+              <Form.Label className="left-align">Neighbor Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Name of neighbor you want to add hotspot against"
+                onChange={onChangeHotspotNeighbor}
+              />
+            </Form.Group>
+            <Form.Group controlId="exampleForm.ControlSelect1">
+              <Form.Label className="left-align">Neighbor Border</Form.Label>
+              <Form.Control
+                as="select"
+                onChange={onChangeHotspotNeighborBorder}
+              >
+                <option>0</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </Form.Control>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseInsertModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleAddHotspot}>
+            Add
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

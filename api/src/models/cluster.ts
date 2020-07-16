@@ -151,7 +151,7 @@ export class Cluster {
       hexagonData.border
     );
 
-    // For each border of new hexagon calculate neighbor coordinate and check if that neighbor coordinate exist 
+    // For each border of new hexagon calculate neighbor coordinate and check if that neighbor coordinate exist
     [...Array(6).keys()].forEach((border) => {
       if (getOppositeBorder(border) === hexagonData.border) {
         return;
