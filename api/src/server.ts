@@ -11,6 +11,9 @@ import { NOT_FOUND } from "http-status-codes";
  */
 const app = express();
 
+// Serve static files from the React app
+app.use(express.static(path.join("client/build")));
+
 /**
  * Adding middlewares
  */
@@ -42,6 +45,10 @@ app.get("*", (req: Request, res: Response) => {
     error: true,
     message: "resource not found",
   });
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join("../client/build/index.html"));
 });
 
 export default app;

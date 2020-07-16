@@ -13,7 +13,8 @@
     "start": "yarn build && node -r module-alias/register ./dist",
     "start:dev": "nodemon --config nodemon.json",
     "start:dev:debug": "nodemon --config nodemon.debug.json",
-    "test": "nodemon --config nodemon.test.json"
+    "test": "nodemon --config nodemon.test.json",
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "_moduleAliases": {
     "@server": "dist/server",
