@@ -96,10 +96,10 @@ function App() {
       );
       loadCluster();
       if (response.status === 200 && response.data) {
-        showNotificationTooltip("success", "Hexagon deleted successfully!");
+        showNotificationTooltip("success", "Hotspot deleted successfully!");
       }
     } catch (error) {
-      showNotificationTooltip("danger", "Can not delete this hexagon!");
+      showNotificationTooltip("danger", "Can not delete this hotspot!");
     }
   };
 
@@ -201,9 +201,9 @@ function App() {
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Delete Hexagon</Modal.Title>
+          <Modal.Title>Delete Hotspot</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Do you really wanna delete this hexagon?</Modal.Body>
+        <Modal.Body>Do you really wanna delete this hotspot?</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close

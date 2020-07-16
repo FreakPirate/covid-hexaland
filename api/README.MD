@@ -27,6 +27,9 @@ Install all dependencies by running the following command in root directory:
 npm install
 ```
 
+**Note**
+Need Node version >= 12.13.0
+
 ## How to run?
 To run server in production environment (server will run on port 8081):
 
