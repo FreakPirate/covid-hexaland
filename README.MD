@@ -1,5 +1,7 @@
-# Covid Hexaland: API 
+# Covid Hexaland:
 ## Overview
+
+Hexaland is a fictitious country affected by COVID-19. Their government has divided the whole country into small uniquely named hexagons of equal size. Each hexagon can be connected to upto 6 other hexagons along their 6 borders.
 
 This is an [Express](https://expressjs.com/) application to serve APIs for Hexaland. This app uses the power and flexibility of typescript.
 
