@@ -10,7 +10,7 @@
   "scripts": {
     "build": "node ./util/build.js",
     "lint": "tslint --project \"tsconfig.json\"",
-    "start": "yarn build && node -r module-alias/register ./dist",
+    "start": "node -r module-alias/register ./dist",
     "start:dev": "nodemon --config nodemon.json",
     "start:dev:debug": "nodemon --config nodemon.debug.json",
     "test": "nodemon --config nodemon.test.json",
