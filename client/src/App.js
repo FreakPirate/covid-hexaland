@@ -69,7 +69,7 @@ function App() {
 
   const handleAddHotspot = async (props) => {
     try {
-      const response = await Axios.post("http://localhost:3001/api/hexagon/", {
+      const response = await Axios.post("/api/hexagon/", {
         name: hotspotName,
         neighbor: neighborHotspot,
         border: parseInt(neighborBorder, 10),
@@ -92,7 +92,7 @@ function App() {
     setShow(false);
     try {
       const response = await Axios.delete(
-        "http://localhost:3001/api/hexagon/" + deletingHexagon
+        "/api/hexagon/" + deletingHexagon
       );
       loadCluster();
       if (response.status === 200 && response.data) {
@@ -117,7 +117,7 @@ function App() {
 
   const loadCluster = async () => {
     try {
-      const response = await Axios.get("http://localhost:3001/api/hexagon");
+      const response = await Axios.get("/api/hexagon");
       const cluster = response.data;
       let center = ["", -1];
 
