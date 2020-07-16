@@ -9,3 +9,6 @@ Allow governments to keep tabs on growth of connected covid hotspots in a cluste
 
 ## API
 [API](https://github.com/FreakPirate/covid-hexaland/blob/master/api/README.MD) application written in Javascript (Express + Typescript).
+
+## NODE Version
+v12.13.0 or above
